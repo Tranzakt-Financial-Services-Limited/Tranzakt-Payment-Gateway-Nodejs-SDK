@@ -1,0 +1,22 @@
+{
+  "name": "tranzakt-node-sdk",
+  "version": "1.0.0",
+  "description": "Tranzakt Payment Gateway Nodejs SDK.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "Tranzakt, TPP, Payment Gateway"
+  ],
+  "author": "Tranzakt",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.1.0",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "axios": "^1.7.3"
+  }
+}
