@@ -1,36 +1,28 @@
-import { AxiosRequestConfig, Method } from "axios";
-
-export interface ICreateStaticInvoice {
+export type CreateStaticInvoiceProps = {
   collectionId: string;
   title: string;
   payerName: string;
   payerEmail: string;
   payerPhoneNumber: string;
   billerMetaData?: Record<string, string>;
-}
+};
 
-export interface ICreateDynamicInvoice extends ICreateStaticInvoice {
+export type CreateDynamicInvoiceProps = {
   amount: number;
   invoiceBeneficiaries: {
     linkedAccountId: string;
     amount: number;
   }[];
-}
+} & CreateStaticInvoiceProps;
 
-export interface IRequestParam {
-  url: string;
-  method: Method;
-  data?: any;
-  headers?: AxiosRequestConfig["headers"];
-}
-export interface IInvoiceBeneficiary {
+export type InvoiceBeneficiary = {
   amount: string;
   linkedAccountId: string;
   accountName: string;
   accountNumber: string;
   bankName: string;
   businessName: string;
-}
+};
 export enum InvoiceType {
   Test = "Test",
   Live = "Live",
@@ -46,7 +38,7 @@ export enum PaymentMethod {
   USSD = "USSD",
 }
 
-export interface IInvoice {
+export type Invoice = {
   id: string;
   title: string;
   collectionName: string;
@@ -70,5 +62,12 @@ export interface IInvoice {
   billerMetaData?: Record<string, string>;
   paymentDate: string;
   paymentMethod: PaymentMethod;
-  invoiceBeneficiaries: IInvoiceBeneficiary[];
-}
+  invoiceBeneficiaries: InvoiceBeneficiary[];
+};
+
+export type ApiError = {
+  status: number;
+  message: string;
+  type: string;
+  errors: string[];
+};

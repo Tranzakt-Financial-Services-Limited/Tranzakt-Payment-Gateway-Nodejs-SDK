@@ -1,4 +1,9 @@
-.env
 /node_modules
-example.ts
 /dist
+
+example.ts
+.env
+
+# Coverage reports
+coverage/
+*.lcov

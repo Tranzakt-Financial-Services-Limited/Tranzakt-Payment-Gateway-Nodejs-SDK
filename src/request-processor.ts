@@ -1,23 +1,12 @@
-import axios, { AxiosError, AxiosHeaders } from "axios";
 import { BASE_URL } from "./config";
-import { IRequestParam } from "./interface";
+import { ApiError } from "./types";
 
-axios.defaults.baseURL = BASE_URL;
-
-axios.interceptors.request.use(
-  async (config) => {
-    config.headers = {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-      ...config.headers,
-    } as AxiosHeaders["headers"];
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+type IRequestParam<T = any> = {
+  url: string;
+  method: "GET" | "POST" | "PUT" | "DELETE";
+  data?: T;
+  headers?: Record<string, string>;
+};
 
 export async function requestProcessor<T>({
   url,
@@ -25,20 +14,38 @@ export async function requestProcessor<T>({
   data,
   headers,
 }: IRequestParam): Promise<T> {
+  const config: RequestInit = {
+    method,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...headers,
+    },
+    body: data ? JSON.stringify(data) : undefined,
+  };
   try {
-    const res = await axios<T>({
-      url,
-      method,
-      data,
-      headers,
-    });
-    return res.data;
-  } catch (error) {
-    let err = error as AxiosError;
-    return Promise.reject(
-      typeof err.response?.data === "object"
-        ? err.response.data
-        : { message: err.message }
-    );
+    const response = await fetch(`${BASE_URL}${url}`, config);
+
+    if (!response.ok) {
+      const errorResponse = (await response.json().catch(() => ({
+        status: response.status,
+        message: response.statusText,
+        type: "UnknownError",
+        errors: [response.statusText],
+      }))) as ApiError;
+
+      return Promise.reject(errorResponse);
+    }
+
+    const responseData = (await response.json()) as T;
+    return responseData;
+  } catch (error: any) {
+    // Handle network errors or unexpected issues
+    return Promise.reject({
+      status: 500,
+      message: error?.message ?? "NetworkError",
+      type: "NetworkError",
+      errors: [error instanceof Error ? error.message : "Unknown error"],
+    } as ApiError);
   }
 }

@@ -1,54 +1,61 @@
-![Trazakt logo](https://tranzakt.s3.eu-west-1.amazonaws.com/app-images/logo-small.png "Trazakt")
+![TRANZAKT FINANCIAL SERVICES LIMITED logo](https://tranzakt.s3.eu-west-1.amazonaws.com/app-images/logo-small.png "TRANZAKT FINANCIAL SERVICES LIMITED")
 
-# Tranzakt Payment Platform NodeJs SDK
+# Tranzakt Payment Platform (TPP) NodeJs SDK
 
-Tranzakt is a payment gateway fast and reliable
+This Node library simplifies access to TPP APIs for your Node applications. It abstracts the complexities of direct integration, enabling you to make quick and easy API calls.
 
 ## Installation
 
-```bash
+```sh
 npm install --save tranzakt-node-sdk
 ```
 
 or
 
-```bash
+```sh
 yarn add tranzakt-node-sdk
 ```
 
 ## Usage
 
-```bash
+```javascript
 import Tranzakt from "tranzakt-node-sdk";
+
+const tranzakt = new Tranzakt("secret-key");
+```
+
+or
+
+```javascript
+var Tranzakt = require("tranzakt-node-sdk");
 
 const tranzakt = new Tranzakt("secret-key");
 ```
 
 ### Create static payment invoice
 
-```bash
-try{
-    const result = await tranzakt.createStaticInvoice({
+```javascript
+try {
+  const result = await tranzakt.createStaticInvoice({
     collectionId: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
     payerEmail: "john.doe@yopmail.com",
     payerName: "John Doe",
     payerPhoneNumber: "07078955432",
     title: "Checkout Invoice",
-    billerMetaData:
-    {
-        "string-1":"any value",
-        "string-2":"any value",
-    }
-    });
-    console.log(result);
+    billerMetaData: {
+      "string-1": "any value",
+      "string-2": "any value",
+    },
+  });
+  console.log(result);
 } catch (error) {
-    console.log(error);
+  console.log(error);
 }
 ```
 
 ### Create dynamic payment invoice
 
-```bash
+```javascript
 try {
     const result = await tranzakt.createStaticInvoice({
       collectionId: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
@@ -75,7 +82,15 @@ try {
 }
 ```
 
-## TODO
+## Testing
 
-- Add Test
-- Add more methods
+All of the libraries tests are run on jest. They can be run by running the test command in your terminal.
+
+```sh
+npm run test
+```
+
+## License
+
+By contributing to this library, you agree that your contributions will be licensed under its [MIT license](/LICENSE).
+Copyright (c) TRANZAKT FINANCIAL SERVICES LIMITED.

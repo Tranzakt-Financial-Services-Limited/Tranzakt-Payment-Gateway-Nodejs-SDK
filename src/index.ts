@@ -1,3 +1,2 @@
-export * from "./config";
-export * from "./interface";
-export * from "./request-processor";
+export { Tranzakt } from "./tranzakt";
+export * from "./types";
