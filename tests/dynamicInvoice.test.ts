@@ -1,6 +1,6 @@
 import {
   ApiError,
-  CreateDynamicInvoiceProps,
+  CreateInvoiceProps,
   Invoice,
   InvoiceType,
   PaymentMethod,
@@ -12,7 +12,7 @@ describe("Tranzakt", () => {
   const mockSecretKey = "test-secret-key";
   const tranzakt = new Tranzakt(mockSecretKey);
 
-  const mockDynamicInvoiceData: CreateDynamicInvoiceProps = {
+  const mockInvoiceData: CreateInvoiceProps = {
     collectionId: "12345",
     title: "Test Invoice",
     payerName: "John Doe",
@@ -61,9 +61,7 @@ describe("Tranzakt", () => {
       } as Response)
     ) as jest.Mock;
 
-    const response = await tranzakt.createDynamicInvoice(
-      mockDynamicInvoiceData
-    );
+    const response = await tranzakt.createInvoice(mockInvoiceData);
 
     expect(response).toEqual(mockResponse);
   });
@@ -88,9 +86,9 @@ describe("Tranzakt", () => {
       } as Response)
     ) as jest.Mock;
 
-    await expect(
-      tranzakt.createStaticInvoice(mockDynamicInvoiceData)
-    ).rejects.toEqual(mockError);
+    await expect(tranzakt.createInvoice(mockInvoiceData)).rejects.toEqual(
+      mockError
+    );
   });
 
   it("should handle a network error when creating a static invoice", async () => {
@@ -106,8 +104,8 @@ describe("Tranzakt", () => {
       Promise.reject(new Error("An unexpected error occurred."))
     ) as jest.Mock;
 
-    await expect(
-      tranzakt.createStaticInvoice(mockDynamicInvoiceData)
-    ).rejects.toEqual(mockError);
+    await expect(tranzakt.createInvoice(mockInvoiceData)).rejects.toEqual(
+      mockError
+    );
   });
 });

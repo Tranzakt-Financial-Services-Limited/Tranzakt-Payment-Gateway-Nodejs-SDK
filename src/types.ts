@@ -1,19 +1,16 @@
-export type CreateStaticInvoiceProps = {
+export type CreateInvoiceProps = {
   collectionId: string;
   title: string;
   payerName: string;
   payerEmail: string;
   payerPhoneNumber: string;
   billerMetaData?: Record<string, string>;
-};
-
-export type CreateDynamicInvoiceProps = {
-  amount: number;
-  invoiceBeneficiaries: {
+  amount?: number;
+  invoiceBeneficiaries?: {
     linkedAccountId: string;
     amount: number;
   }[];
-} & CreateStaticInvoiceProps;
+};
 
 export type InvoiceBeneficiary = {
   amount: string;
