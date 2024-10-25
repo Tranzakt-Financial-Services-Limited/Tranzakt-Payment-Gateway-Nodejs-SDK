@@ -6,21 +6,13 @@ type IRequestParam<T = any> = {
   method: "GET" | "POST" | "PUT" | "DELETE";
   data?: T;
   headers?: Record<string, string>;
-  expectsData?: boolean;
 };
-
-export interface BaseResponse {
-  status: number;
-  message: string;
-  errors?: string[];
-}
 
 export async function requestProcessor<T>({
   url,
   method,
   data,
   headers,
-  expectsData = true,
 }: IRequestParam): Promise<T> {
   const config: RequestInit = {
     method,
@@ -45,9 +37,10 @@ export async function requestProcessor<T>({
       return Promise.reject(errorResponse);
     }
 
-    const responseData = await response.json();
-    return expectsData ? responseData : (responseData as T);
+    const responseData = (await response.json()) as T;
+    return responseData;
   } catch (error: any) {
+    // Handle network errors or unexpected issues
     return Promise.reject({
       status: 500,
       message: error?.message ?? "NetworkError",

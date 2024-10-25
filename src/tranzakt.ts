@@ -1,5 +1,5 @@
 import { COLLECTION_URL, INVOICE_URL } from "./config";
-import { BaseResponse, requestProcessor } from "./request-processor";
+import { requestProcessor } from "./request-processor";
 import {
   Collection,
   CreateInvoiceProps,
@@ -16,7 +16,6 @@ export class Tranzakt {
       url: `${INVOICE_URL}/${invoiceId}`,
       method: "GET",
       headers: { "x-api-key": this.secretKey },
-      expectsData: true,
     });
   }
 
@@ -26,16 +25,14 @@ export class Tranzakt {
       url: INVOICE_URL,
       method: "POST",
       headers: { "x-api-key": this.secretKey },
-      expectsData: true,
     });
   }
 
-  async invalidateAnInvoice(invoiceId: string): Promise<BaseResponse> {
-    return await requestProcessor<BaseResponse>({
+  async invalidateAnInvoice(invoiceId: string): Promise<null> {
+    return await requestProcessor<null>({
       url: `${INVOICE_URL}/${invoiceId}/invalidate`,
       method: "POST",
       headers: { Authorization: `Bearer ${this.secretKey}` },
-      expectsData: false,
     });
   }
 
@@ -44,7 +41,6 @@ export class Tranzakt {
       url: `${COLLECTION_URL}/${collectionId}`,
       method: "GET",
       headers: { Authorization: `Bearer ${this.secretKey}` },
-      expectsData: true,
     });
   }
 
@@ -72,7 +68,6 @@ export class Tranzakt {
       url,
       method: "GET",
       headers: { Authorization: `Bearer ${this.secretKey}` },
-      expectsData: true,
     });
   }
 }
