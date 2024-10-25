@@ -1,4 +1,3 @@
-// tranzakt.ts
 import { CollectionService } from "./repository/collection";
 import { InvoiceService } from "./repository/invoice";
 import {
