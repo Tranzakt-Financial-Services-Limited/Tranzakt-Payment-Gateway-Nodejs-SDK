@@ -17,7 +17,7 @@ export class Tranzakt {
     this.collectionService = new CollectionService(secretKey);
   }
 
-  async getInvoiceDetails(invoiceId: string): Promise<Invoice> {
+  async getInvoice(invoiceId: string): Promise<Invoice> {
     return this.invoiceService.getInvoiceDetails(invoiceId);
   }
 
@@ -25,11 +25,11 @@ export class Tranzakt {
     return this.invoiceService.createInvoice(dynamicInvoice);
   }
 
-  async invalidateAnInvoice(invoiceId: string): Promise<null> {
+  async invalidateInvoice(invoiceId: string): Promise<null> {
     return this.invoiceService.invalidateAnInvoice(invoiceId);
   }
 
-  async getCollectionDetails(collectionId: string): Promise<Collection> {
+  async getCollection(collectionId: string): Promise<Collection> {
     return this.collectionService.getCollectionDetails(collectionId);
   }
 

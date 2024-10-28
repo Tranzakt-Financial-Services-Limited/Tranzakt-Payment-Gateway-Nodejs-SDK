@@ -89,7 +89,7 @@ describe("CollectionService", () => {
         } as Response)
       ) as jest.Mock;
 
-      const response = await tranzakt.getCollectionDetails("col-001");
+      const response = await tranzakt.getCollection("col-001");
 
       expect(response).toEqual(mockCollectionResponse);
       expect(fetch).toHaveBeenCalledWith(
@@ -121,7 +121,7 @@ describe("CollectionService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.getCollectionDetails("invalid-id")).rejects.toEqual(
+      await expect(tranzakt.getCollection("invalid-id")).rejects.toEqual(
         mockError
       );
     });

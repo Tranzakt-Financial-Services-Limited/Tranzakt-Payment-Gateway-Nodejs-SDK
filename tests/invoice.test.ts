@@ -87,7 +87,7 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      const response = await tranzakt.getInvoiceDetails("inv-001");
+      const response = await tranzakt.getInvoice("inv-001");
 
       expect(response).toEqual(mockInvoiceResponse);
       expect(fetch).toHaveBeenCalledWith(
@@ -119,7 +119,7 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.getInvoiceDetails("invalid-id")).rejects.toEqual(
+      await expect(tranzakt.getInvoice("invalid-id")).rejects.toEqual(
         mockError
       );
     });
@@ -210,7 +210,7 @@ describe("InvoiceService", () => {
     });
   });
 
-  describe("invalidateAnInvoice", () => {
+  describe("invalidateInvoice", () => {
     it("should handle already invalidated invoice error", async () => {
       const mockError: ApiError = {
         status: 400,
@@ -227,7 +227,7 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.invalidateAnInvoice("inv-001")).rejects.toEqual(
+      await expect(tranzakt.invalidateInvoice("inv-001")).rejects.toEqual(
         mockError
       );
     });
@@ -248,7 +248,7 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.invalidateAnInvoice("inv-001")).rejects.toEqual(
+      await expect(tranzakt.invalidateInvoice("inv-001")).rejects.toEqual(
         mockError
       );
     });
@@ -269,7 +269,7 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.invalidateAnInvoice("inv-001")).rejects.toEqual(
+      await expect(tranzakt.invalidateInvoice("inv-001")).rejects.toEqual(
         mockError
       );
     });
@@ -291,7 +291,7 @@ describe("InvoiceService", () => {
       ) as jest.Mock;
 
       await expect(
-        tranzakt.invalidateAnInvoice("non-existent-id")
+        tranzakt.invalidateInvoice("non-existent-id")
       ).rejects.toEqual(mockError);
     });
   });
@@ -310,9 +310,7 @@ describe("InvoiceService", () => {
         Promise.reject(new Error(errorMessage))
       ) as jest.Mock;
 
-      await expect(tranzakt.getInvoiceDetails("inv-001")).rejects.toEqual(
-        mockError
-      );
+      await expect(tranzakt.getInvoice("inv-001")).rejects.toEqual(mockError);
     });
 
     it("should handle malformed JSON responses", async () => {
@@ -331,9 +329,7 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.getInvoiceDetails("inv-001")).rejects.toEqual(
-        mockError
-      );
+      await expect(tranzakt.getInvoice("inv-001")).rejects.toEqual(mockError);
     });
 
     it("should handle server errors", async () => {
@@ -352,9 +348,7 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.getInvoiceDetails("inv-001")).rejects.toEqual(
-        mockError
-      );
+      await expect(tranzakt.getInvoice("inv-001")).rejects.toEqual(mockError);
     });
   });
 });
