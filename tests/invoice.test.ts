@@ -197,6 +197,12 @@ describe("InvoiceService", () => {
         payerName: "John Doe",
         payerEmail: "john@example.com",
         payerPhoneNumber: "1234567890",
+        invoiceBeneficiaries: [
+          {
+            linkedAccountId: "acc-001",
+            amount: 1000,
+          },
+        ],
       };
 
       await tranzakt.createInvoice(minimalInvoiceData);

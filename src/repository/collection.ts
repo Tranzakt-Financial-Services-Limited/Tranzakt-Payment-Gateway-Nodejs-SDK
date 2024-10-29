@@ -13,7 +13,7 @@ export class CollectionService {
     return await requestProcessor<Collection>({
       url: `${COLLECTION_URL}/${collectionId}`,
       method: "GET",
-      headers: { Authorization: `Bearer ${this.secretKey}` },
+      headers: { "x-api-key": this.secretKey },
     });
   }
 
@@ -38,7 +38,7 @@ export class CollectionService {
     return await requestProcessor<GetCollectionInvoicesResponse>({
       url,
       method: "GET",
-      headers: { Authorization: `Bearer ${this.secretKey}` },
+      headers: { "x-api-key": this.secretKey },
     });
   }
 }

@@ -7,7 +7,7 @@ export type CreateInvoiceProps = {
   billerMetaData?: Record<string, string>;
   amount?: number;
   callBackUrl?: string;
-  invoiceBeneficiaries?: {
+  invoiceBeneficiaries: {
     linkedAccountId: string;
     amount: number;
   }[];

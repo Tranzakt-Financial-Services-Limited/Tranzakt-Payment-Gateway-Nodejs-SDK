@@ -26,7 +26,7 @@ export class InvoiceService {
     return await requestProcessor<null>({
       url: `${INVOICE_URL}/${invoiceId}/invalidate`,
       method: "POST",
-      headers: { Authorization: `Bearer ${this.secretKey}` },
+      headers: { "x-api-key": this.secretKey },
     });
   }
 }
