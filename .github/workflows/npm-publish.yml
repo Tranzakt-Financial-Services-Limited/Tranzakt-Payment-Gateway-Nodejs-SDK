@@ -1,0 +1,106 @@
+name: Tranzakt SDK CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+        env:
+          CI: true
+
+  publish:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build SDK
+        run: |
+          npm run build:esm
+          npm run build:cjs
+
+      - name: Check build artifacts
+        run: |
+          if [ ! -d "dist/esm" ] || [ ! -d "dist/cjs" ] || [ ! -d "dist/types" ]; then
+            echo "Error: Missing build artifacts"
+            exit 1
+          fi
+
+      - name: Check package name
+        run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          if [[ $PACKAGE_NAME != "tpp-node-sdk" ]]; then
+            echo "Error: Package name mismatch"
+            exit 1
+          fi
+
+      - name: Version bump and publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name 'Tranzakt Bot'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+          # Get current version
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+
+          # Bump version
+          npm version patch
+
+          # Get new version
+          NEW_VERSION=$(node -p "require('./package.json').version")
+
+          # Publish to npm
+          npm publish
+
+          # Push changes and tags
+          git push --follow-tags
+
+          # Create GitHub release
+          gh release create v${NEW_VERSION} \
+            --title "Tranzakt SDK v${NEW_VERSION}" \
+            --notes "Release of Tranzakt SDK version ${NEW_VERSION}
+
+            ## What's Changed
+            - Automated release from main branch
+            - Package includes:
+              - CommonJS build (Node.js require)
+              - ES Modules build (Node.js import)
+              - TypeScript type definitions
+            
+            For full documentation, visit our [GitHub repository](https://github.com/Scuudu-Labs/Tranzakt-Payment-Gateway-Nodejs-SDK)"

@@ -1,16 +1,18 @@
 import { COLLECTION_URL } from "../config";
-import { requestProcessor } from "../request-processor";
 import {
-  Collection,
   GetCollectionInvoicesParams,
   GetCollectionInvoicesResponse,
+  GetCollectionResponse,
 } from "../types";
+import { requestProcessor } from "../utils/request-processor";
 
 export class CollectionService {
   constructor(private readonly secretKey: string) {}
 
-  async getCollectionDetails(collectionId: string): Promise<Collection> {
-    return await requestProcessor<Collection>({
+  async getCollectionDetails(
+    collectionId: string
+  ): Promise<GetCollectionResponse> {
+    return await requestProcessor<GetCollectionResponse>({
       url: `${COLLECTION_URL}/${collectionId}`,
       method: "GET",
       headers: { "x-api-key": this.secretKey },

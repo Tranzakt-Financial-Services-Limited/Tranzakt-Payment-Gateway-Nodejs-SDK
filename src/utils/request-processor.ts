@@ -1,5 +1,5 @@
-import { BASE_URL } from "./config";
-import { ApiError } from "./types";
+import { BASE_URL } from "../config";
+import { ApiError } from "../types";
 
 type IRequestParam<T = any> = {
   url: string;

@@ -1,11 +1,13 @@
-import { CollectionService } from "./repository/collection";
-import { InvoiceService } from "./repository/invoice";
+import { CollectionService } from "./services/collection";
+import { InvoiceService } from "./services/invoice";
 import {
-  Collection,
   CreateInvoiceProps,
+  CreateInvoiceResponse,
   GetCollectionInvoicesParams,
   GetCollectionInvoicesResponse,
-  Invoice,
+  GetCollectionResponse,
+  GetInvoiceResponse,
+  InvalidateInvoiceResponse,
 } from "./types";
 
 export class Tranzakt {
@@ -17,19 +19,23 @@ export class Tranzakt {
     this.collectionService = new CollectionService(secretKey);
   }
 
-  async getInvoice(invoiceId: string): Promise<Invoice> {
+  async getInvoice(invoiceId: string): Promise<GetInvoiceResponse> {
     return this.invoiceService.getInvoiceDetails(invoiceId);
   }
 
-  async createInvoice(dynamicInvoice: CreateInvoiceProps): Promise<Invoice> {
+  async createInvoice(
+    dynamicInvoice: CreateInvoiceProps
+  ): Promise<CreateInvoiceResponse> {
     return this.invoiceService.createInvoice(dynamicInvoice);
   }
 
-  async invalidateInvoice(invoiceId: string): Promise<null> {
+  async invalidateInvoice(
+    invoiceId: string
+  ): Promise<InvalidateInvoiceResponse> {
     return this.invoiceService.invalidateAnInvoice(invoiceId);
   }
 
-  async getCollection(collectionId: string): Promise<Collection> {
+  async getCollection(collectionId: string): Promise<GetCollectionResponse> {
     return this.collectionService.getCollectionDetails(collectionId);
   }
 
