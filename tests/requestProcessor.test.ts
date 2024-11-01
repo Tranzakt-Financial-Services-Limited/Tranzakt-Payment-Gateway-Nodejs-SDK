@@ -1,5 +1,5 @@
 import { ApiError } from "../src";
-import { requestProcessor } from "../src/request-processor";
+import { requestProcessor } from "../src/utils/request-processor";
 
 describe("Test request processor", () => {
   const mockUrl = "/test-endpoint";

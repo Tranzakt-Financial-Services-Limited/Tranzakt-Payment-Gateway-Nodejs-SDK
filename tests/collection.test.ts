@@ -29,6 +29,10 @@ describe("CollectionService", () => {
     amount: 1000,
     dateCreated: "2024-01-01T00:00:00Z",
     status: CollectionStatus.Active,
+    collectionCategory: {
+      id: "col-002",
+      name: "Test Collection Category",
+    },
     collectionAccounts: [
       {
         percentage: 100,
@@ -57,23 +61,27 @@ describe("CollectionService", () => {
   };
 
   const mockCollectionInvoicesResponse: GetCollectionInvoicesResponse = {
-    items: [
-      {
-        id: "inv-001",
-        title: "Test Invoice",
-        amount: 1000,
-        status: InvoiceStatus.Unpaid,
-        payerName: "John Doe",
-        payerEmail: "john@example.com",
-        dateCreated: "2024-01-01T00:00:00Z",
-        datePaid: undefined,
-      },
-    ],
-    page: 1,
-    pageSize: 10,
-    totalCount: 1,
-    hasNextPage: false,
-    hasPreviousPage: false,
+    data: {
+      items: [
+        {
+          id: "inv-001",
+          title: "Test Invoice",
+          amount: 1000,
+          status: InvoiceStatus.Unpaid,
+          payerName: "John Doe",
+          payerEmail: "john@example.com",
+          dateCreated: "2024-01-01T00:00:00Z",
+          datePaid: undefined,
+        },
+      ],
+      page: 1,
+      pageSize: 10,
+      totalCount: 1,
+      hasNextPage: false,
+      hasPreviousPage: false,
+    },
+    status: 200,
+    message: "Fetched invoice successfully",
   };
 
   beforeEach(() => {
@@ -96,7 +104,7 @@ describe("CollectionService", () => {
         `${BASE_URL}${COLLECTION_URL}/col-001`,
         expect.objectContaining({
           headers: {
-            Authorization: `Bearer ${mockSecretKey}`,
+            "x-api-key": mockSecretKey,
             Accept: "application/json",
             "Content-Type": "application/json",
           },
@@ -143,7 +151,7 @@ describe("CollectionService", () => {
         `${BASE_URL}${COLLECTION_URL}/col-001/Invoices`,
         expect.objectContaining({
           headers: {
-            Authorization: `Bearer ${mockSecretKey}`,
+            "x-api-key": mockSecretKey,
             Accept: "application/json",
             "Content-Type": "application/json",
           },
