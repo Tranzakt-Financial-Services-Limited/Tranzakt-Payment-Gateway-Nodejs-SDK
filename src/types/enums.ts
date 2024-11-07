@@ -20,6 +20,12 @@ export enum SettlementFrequency {
   Daily = "Daily",
 }
 
+export enum SettlementType {
+  Empty = "Empty",
+  Single = "Single",
+  Multiple = "Multiple",
+}
+
 export enum InvoiceType {
   Test = "Test",
   Live = "Live",
