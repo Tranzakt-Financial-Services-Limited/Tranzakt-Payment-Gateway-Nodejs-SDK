@@ -33,135 +33,51 @@ const { Tranzakt } = require("tranzakt-node-sdk");
 const tranzakt = new Tranzakt("your-secret-key");
 ```
 
-## Features
-
-- Invoice Management (Create, Get, Invalidate)
-- Collection Management (Get Details, List Invoices)
-- Comprehensive Type Support
-- Error Handling
-- Pagination Support
-
-## API Reference
-
-### Invoice Operations
-
-#### Create Static Invoice
-
-```typescript
-try {
-  const invoice = await tranzakt.createInvoice({
-    collectionId: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
-    payerEmail: "john.doe@example.com",
-    payerName: "John Doe",
-    payerPhoneNumber: "07078955432",
-    title: "Checkout Invoice",
-    billerMetaData: {
-      "custom-field": "value",
-      "order-id": "12345",
-    },
-    callBackUrl: "https://your-callback-url.com/webhook",
-  });
-  console.log(invoice);
-} catch (error) {
-  console.error(error);
-}
-```
-
-#### Create Dynamic Invoice with Multiple Beneficiaries
-
-```typescript
-try {
-  const invoice = await tranzakt.createInvoice({
-    collectionId: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
-    payerEmail: "john.doe@example.com",
-    payerName: "John Doe",
-    payerPhoneNumber: "07078955432",
-    title: "Split Payment Invoice",
-    amount: 40000,
-    invoiceBeneficiaries: [
-      {
-        linkedAccountId: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
-        amount: 20000,
-      },
-      {
-        linkedAccountId: "57871e2e-6754-4e46-a3a9-47a211c35cdw",
-        amount: 20000,
-      },
-    ],
-    callBackUrl: "https://your-callback-url.com/webhook",
-  });
-  console.log(invoice);
-} catch (error) {
-  console.error(error);
-}
-```
-
-#### Get Invoice Details
-
-```typescript
-try {
-  const invoice = await tranzakt.getInvoice(
-    "22205053-02c7-4607-9cb5-5fa58cecae6d"
-  );
-  console.log(invoice);
-} catch (error) {
-  console.error(error);
-}
-```
-
-#### Invalidate Invoice
-
-```typescript
-try {
-  const result = await tranzakt.invalidateInvoice(
-    "22205053-02c7-4607-9cb5-5fa58cecae6d"
-  );
-  console.log(result);
-} catch (error) {
-  console.error(error);
-}
-```
-
-### Collection Operations
-
-#### Get Collection Details
-
-```typescript
-try {
-  const collection = await tranzakt.getCollection(
-    "37a71e2e-ed54-4e46-a3a9-47a211c352ea"
-  );
-  console.log(collection);
-} catch (error) {
-  console.error(error);
-}
-```
-
-#### List Collection Invoices
-
-```typescript
-try {
-  const invoices = await tranzakt.getCollectionInvoices(
-    "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
-    {
-      invoiceStatus: "Paid",
-      startDate: "2024-01-01",
-      endDate: "2024-12-31",
-      page: 1,
-      pageSize: 20,
-    }
-  );
-  console.log(invoices);
-} catch (error) {
-  console.error(error);
-}
-```
-
 ## Types
 
-### Payment Enums
+### Base Types
 
 ```typescript
+interface ApiResponse<T> {
+  data: T;
+  status: string; // "success" | "error"
+  message: string;
+}
+
+interface ApiError {
+  status: number;
+  message: string;
+  type: string;
+  errors: string[];
+}
+
+interface PaginatedData<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+```
+
+### Enums
+
+```typescript
+enum CollectionStatus {
+  Active = "Active",
+  Pending = "Pending",
+  Disabled = "Disabled",
+  Suspended = "Suspended",
+  Blocked = "Blocked",
+}
+
+enum InvoiceStatus {
+  Unpaid = "Unpaid",
+  Paid = "Paid",
+  Invalidated = "Invalidated",
+}
+
 enum PaymentMethod {
   Card = "Card",
   BankTransfer = "BankTransfer",
@@ -174,53 +90,357 @@ enum PaymentChannelType {
   USSD = "USSD",
   BankBranch = "BankBranch",
 }
-```
 
-### Invoice Status
+enum InvoiceType {
+  Test = "Test",
+  Live = "Live",
+}
 
-```typescript
-enum InvoiceStatus {
-  Unpaid = "Unpaid",
-  Paid = "Paid",
-  Invalidated = "Invalidated",
+enum ServiceFeeBilling {
+  Payer = "Payer",
+}
+
+enum SettlementFrequency {
+  Instant = "Instant",
+  Daily = "Daily",
+}
+
+enum InvoiceExpirationPeriod {
+  OneHour = "OneHour",
+  TwentyFourHours = "TwentyFourHours",
+  FortyEightHours = "FortyEightHours",
+}
+
+enum ClientRequestStatus {
+  Pending = "Pending",
+  Approved = "Approved",
+  Rejected = "Rejected",
 }
 ```
 
-### Collection Status
+## Features & API Reference
+
+### Collection Operations
+
+#### Get Collection Details
+
+Retrieves detailed information about a specific collection.
+
+**Response Type:**
 
 ```typescript
-enum CollectionStatus {
-  Active = "Active",
-  Pending = "Pending",
-  Disabled = "Disabled",
-  Suspended = "Suspended",
-  Blocked = "Blocked",
+interface Collection {
+  id: string;
+  collectionName: string;
+  description: string;
+  invoiceExpirationPeriod: InvoiceExpirationPeriod;
+  paymentChannels: PaymentChannelType[];
+  settlementFrequency: SettlementFrequency;
+  serviceFeeBilling: ServiceFeeBilling;
+  amount?: number;
+  dateCreated: string;
+  status: CollectionStatus;
+  collectionCategory: {
+    id: string;
+    name: string;
+  };
+  collectionAccounts?: {
+    percentage: number;
+    linkedAccount: {
+      id: string;
+      accountName: string;
+      accountNumber: string;
+      bank: {
+        id: string;
+        name: string;
+        code: string;
+        logo: string;
+      };
+      merchant: {
+        merchantId: string;
+        businessName: string;
+      };
+    };
+  }[];
+  collectionClient?: {
+    clientId: string;
+    clientName: string;
+    status: ClientRequestStatus;
+  };
+}
+
+type GetCollectionResponse = ApiResponse<Collection>;
+```
+
+**Example Usage:**
+
+```typescript
+try {
+  const response = await tranzakt.getCollection(
+    "37a71e2e-ed54-4e46-a3a9-47a211c352ea"
+  );
+  console.log(response.status); // "success"
+  console.log(response.message); // "Collection fetched successfully"
+  console.log(response.data); // Collection details
+} catch (error) {
+  console.error(error);
+}
+```
+
+#### List Collection Invoices
+
+Retrieves a paginated list of invoices associated with a collection.
+
+**Parameters:**
+
+```typescript
+interface GetCollectionInvoicesParams {
+  invoiceStatus?: InvoiceStatus;
+  search?: string;
+  startDate?: string; // YYYY-MM-DD
+  endDate?: string; // YYYY-MM-DD
+  InvoiceType?: InvoiceType;
+  linkedAccountId?: string;
+  IsDownloading?: boolean;
+  page?: number;
+  pageSize?: number;
+}
+```
+
+**Response Type:**
+
+```typescript
+interface CollectionInvoiceItem {
+  id: string;
+  title: string;
+  amount: number;
+  status: string;
+  payerName: string;
+  payerEmail: string;
+  dateCreated: string;
+  datePaid?: string;
+}
+
+type GetCollectionInvoicesResponse = ApiResponse<
+  PaginatedData<CollectionInvoiceItem>
+>;
+```
+
+**Example Usage:**
+
+```typescript
+try {
+  const response = await tranzakt.getCollectionInvoices(
+    "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
+    {
+      invoiceStatus: InvoiceStatus.Paid,
+      startDate: "2024-01-01",
+      endDate: "2024-12-31",
+      page: 1,
+      pageSize: 20,
+    }
+  );
+  console.log(response.status); // "success"
+  console.log(response.message); // "Invoices fetched successfully"
+  console.log(response.data); // Paginated invoice list
+} catch (error) {
+  console.error(error);
+}
+```
+
+### Invoice Operations
+
+#### Create Invoice
+
+Creates a new invoice for a collection.
+
+**Important Notes:**
+
+1. If a collection has a fixed amount configured, you cannot specify an amount in the request
+2. If a collection has no fixed amount, you must specify the amount in the request
+3. If a collection has fixed beneficiaries (collection accounts), you cannot specify beneficiaries in the request
+4. If a collection has no fixed beneficiaries, you must specify the beneficiaries in the request
+5. Collection owner must be included in the beneficiaries list
+6. All beneficiary accounts must either belong to the collection owner or have completed their business verification (KYB)
+
+**Request Parameters:**
+
+```typescript
+interface CreateInvoiceProps {
+  collectionId: string;
+  title: string;
+  payerName: string;
+  payerEmail: string;
+  payerPhoneNumber: string;
+  billerMetaData?: Record<string, string>;
+  amount?: number; // Required if collection has no fixed amount
+  callBackUrl?: string;
+  invoiceBeneficiaries?: {
+    // Required if collection has no fixed beneficiaries
+    linkedAccountId: string;
+    amount: number;
+  }[];
+}
+```
+
+**Response Type:**
+
+```typescript
+interface Invoice {
+  id: string;
+  title: string;
+  collectionName: string;
+  payerName: string;
+  payerEmail: string;
+  payerPhoneNumber: string;
+  billerName: string;
+  billerAddress: string;
+  billerEmail: string;
+  amount: number;
+  serviceCharge?: number;
+  vat: number;
+  totalAmount: number;
+  invoiceStatus: InvoiceStatus;
+  serviceFeePayer: ServiceFeeBilling;
+  settlementFrequency: SettlementFrequency;
+  type: InvoiceType;
+  paymentUrl: string;
+  dateCreated: string;
+  dateModified: string;
+  billerMetaData?: Record<string, string>;
+  paymentDate: string;
+  paymentMethod: PaymentMethod;
+  invoiceBeneficiaries: Array<{
+    amount: string;
+    linkedAccountId: string;
+    accountName: string;
+    accountNumber: string;
+    bankName: string;
+    businessName: string;
+  }>;
+  callBackUrl?: string;
+}
+
+type CreateInvoiceResponse = ApiResponse<Invoice>;
+```
+
+**Example Usage:**
+
+```typescript
+try {
+  const response = await tranzakt.createInvoice({
+    collectionId: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
+    payerEmail: "john.doe@example.com",
+    payerName: "John Doe",
+    payerPhoneNumber: "07078955432",
+    title: "Checkout Invoice",
+    amount: 40000, // Only if collection has no fixed amount
+    invoiceBeneficiaries: [
+      // Only if collection has no fixed beneficiaries
+      {
+        linkedAccountId: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
+        amount: 20000,
+      },
+      {
+        linkedAccountId: "57871e2e-6754-4e46-a3a9-47a211c35cdw",
+        amount: 20000,
+      },
+    ],
+    billerMetaData: {
+      "order-id": "12345",
+    },
+    callBackUrl: "https://your-callback-url.com/webhook",
+  });
+  console.log(response.status); // "success"
+  console.log(response.message); // "Invoice created successfully"
+  console.log(response.data); // Created invoice details
+} catch (error) {
+  console.error(error);
+}
+```
+
+#### Get Invoice Details
+
+Retrieves detailed information about a specific invoice.
+
+**Response Type:**
+
+```typescript
+type GetInvoiceResponse = ApiResponse<Invoice>;
+```
+
+**Example Usage:**
+
+```typescript
+try {
+  const response = await tranzakt.getInvoice(
+    "22205053-02c7-4607-9cb5-5fa58cecae6d"
+  );
+  console.log(response.status); // "success"
+  console.log(response.message); // "Invoice fetched successfully"
+  console.log(response.data); // Invoice details
+} catch (error) {
+  console.error(error);
+}
+```
+
+#### Invalidate Invoice
+
+Invalidates an unpaid invoice.
+
+**Response Type:**
+
+```typescript
+type InvalidateInvoiceResponse = ApiResponse<null>;
+```
+
+**Example Usage:**
+
+```typescript
+try {
+  const response = await tranzakt.invalidateInvoice(
+    "22205053-02c7-4607-9cb5-5fa58cecae6d"
+  );
+  console.log(response.status); // "success"
+  console.log(response.message); // "Invoice invalidated successfully"
+} catch (error) {
+  console.error(error);
 }
 ```
 
 ## Error Handling
 
-The SDK includes comprehensive error handling with typed error responses:
-
-```typescript
-interface ApiError {
-  status: number;
-  message: string;
-  type: string;
-  errors: string[];
-}
-```
-
-Example error handling:
-
 ```typescript
 try {
-  const invoice = await tranzakt.createInvoice(/* ... */);
+  const response = await tranzakt.createInvoice(/* ... */);
 } catch (error: ApiError) {
   console.error(`Error ${error.status}: ${error.message}`);
+  console.error("Error type:", error.type);
   console.error("Detailed errors:", error.errors);
 }
 ```
+
+Common Error Responses:
+
+- 400 Bad Request
+
+  - Collection not found
+  - Amount specified when collection has fixed amount
+  - No amount specified when collection needs it
+  - Beneficiaries specified when collection has fixed beneficiaries
+  - No beneficiaries specified when collection needs them
+  - Invalid beneficiary account IDs
+  - Total beneficiary amounts don't match invoice amount
+
+- 403 Forbidden
+
+  - Collection is disabled
+  - Collection is blocked or suspended
+  - Test API key used for live collection or vice versa
+
+- 412 Precondition Failed
+  - Beneficiary account not verified (missing KYB)
+  - Collection owner not included in beneficiaries
 
 ## Testing
 
