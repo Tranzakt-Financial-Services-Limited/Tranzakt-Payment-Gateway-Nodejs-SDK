@@ -20,7 +20,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20" # Updated to Node.js 20
+          node-version: "20"
 
       - name: Install dependencies
         run: npm install
@@ -32,7 +32,6 @@ jobs:
 
   publish:
     needs: test
-    # Updated condition to prevent running on pull requests and version commits
     if: |
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
@@ -43,12 +42,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Important for git history
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "20" # Updated to Node.js 20
+          node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
@@ -77,14 +77,22 @@ jobs:
             exit 1
           fi
 
+      - name: Configure Git
+        run: |
+          git config --global user.name 'Tranzakt Bot'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Clean working directory
+        run: |
+          git add .
+          git commit -m "chore: build artifacts [skip-ci]" || true
+          git reset --hard HEAD
+
       - name: Version bump and publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global user.name 'Tranzakt Bot'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-
           # Get current version
           CURRENT_VERSION=$(node -p "require('./package.json').version")
 
