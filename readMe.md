@@ -1,4 +1,4 @@
-# Tranzakt Payment Platform (TPP) SDK
+# Tranzakt Payment Platform (TPP) Node SDK
 
 A Node.js library for seamless integration with TPP APIs. This SDK simplifies your integration by providing an intuitive interface for making API calls.
 
