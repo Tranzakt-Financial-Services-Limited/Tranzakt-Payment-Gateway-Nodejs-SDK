@@ -1,5 +1,5 @@
 {
-  "name": "tpp-node-sdk",
+  "name": "tranzakt-node-sdk",
   "version": "0.0.12",
   "description": "Tranzakt Payment Gateway Nodejs SDK.",
   "main": "dist/cjs/index.js",
