@@ -9,9 +9,11 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "moduleResolution": "Node",
     "declaration": true,
-    "declarationDir": "dist/types"
+    "declarationDir": "dist/types",
+    "preserveSymlinks": true
   },
   "include": ["src/**/*"]
 }

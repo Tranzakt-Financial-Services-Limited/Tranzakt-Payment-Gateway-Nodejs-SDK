@@ -6,10 +6,11 @@
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
   "scripts": {
-    "build:esm": "tsc --module ES2020 --outDir dist/esm",
-    "build:cjs": "tsc --module CommonJS --outDir dist/cjs",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
     "build": "npm run build:esm && npm run build:cjs",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "Tranzakt, TPP, Payment Gateway"
