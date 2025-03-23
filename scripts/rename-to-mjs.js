@@ -3,54 +3,57 @@ const path = require('path');
 
 function renameFilesInDir(dir) {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
-    const directories = new Set();
 
-    // First collect all directories
-    for (const entry of entries) {
-        if (entry.isDirectory()) {
-            directories.add(entry.name);
-            renameFilesInDir(path.join(dir, entry.name));
-        }
-    }
-
-    // Then process files and update imports
     for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
 
-        if (!entry.isDirectory() && entry.name.endsWith('.js')) {
-            // Update imports in JS files
+        if (entry.isDirectory()) {
+            renameFilesInDir(fullPath);
+        } else if (entry.name.endsWith('.js')) {
+            const newPath = fullPath.replace(/\.js$/, '.mjs');
+
+            // First update the content before renaming
             let content = fs.readFileSync(fullPath, 'utf8');
 
-            // Handle imports differently based on whether they're directories or files
-            content = content.replace(/from\s+["']([./][^"']+)(\.js)?["']/g, (match, importPath, ext) => {
-                // Skip non-relative imports
-                if (!importPath.startsWith('.') && !importPath.startsWith('/')) {
+            // Fix import paths to include .mjs extension
+            content = content.replace(/from\s+["']([^"']+)["']/g, (match, importPath) => {
+                // Leave absolute imports or node_module imports unchanged
+                if (!importPath.startsWith('.') && !importPath.includes('/')) {
                     return match;
                 }
 
-                // Get the base name of the import path
-                const baseName = path.basename(importPath);
-                const dirName = path.dirname(importPath);
-
-                // Check if this is importing a directory
-                if (directories.has(baseName)) {
-                    return `from "${path.join(importPath, 'index.mjs')}"`;
+                // If it's a relative path without ./ prefix, add it
+                if (importPath.startsWith('types/') ||
+                    importPath.startsWith('services/') ||
+                    importPath.startsWith('utils/') ||
+                    importPath.startsWith('config/')) {
+                    importPath = './' + importPath;
                 }
 
-                // Otherwise treat as a file import
-                return `from "${importPath}.mjs"`;
+                // Add .mjs extension if not already present
+                if (!importPath.endsWith('.mjs') && !importPath.endsWith('.js')) {
+                    // Check if the import is likely a directory (no file extension)
+                    if (!path.extname(importPath)) {
+                        // Append /index.mjs if it seems to be a directory
+                        return `from "${importPath}/index.mjs"`;
+                    }
+
+                    return `from "${importPath}.mjs"`;
+                } else if (importPath.endsWith('.js')) {
+                    // Convert .js extension to .mjs
+                    return `from "${importPath.replace(/\.js$/, '.mjs')}"`;
+                }
+
+                return `from "${importPath}"`;
             });
 
+            // Write updated content and rename the file
             fs.writeFileSync(fullPath, content);
-
-            // Rename the file after updating imports
-            const newPath = fullPath.replace(/\.js$/, '.mjs');
             fs.renameSync(fullPath, newPath);
-            console.log(`Renamed: ${fullPath} → ${newPath}`);
         }
     }
 }
 
 const esmDir = path.resolve(__dirname, '../dist/esm');
 renameFilesInDir(esmDir);
-console.log('Done: Renamed files and updated imports');
+console.log('Successfully renamed .js to .mjs and updated imports');
