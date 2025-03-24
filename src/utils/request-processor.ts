@@ -23,6 +23,7 @@ export async function requestProcessor<T>({
     },
     body: data ? JSON.stringify(data) : undefined,
   };
+
   try {
     const response = await fetch(`${BASE_URL}${url}`, config);
 
@@ -42,12 +43,25 @@ export async function requestProcessor<T>({
       };
     }
 
+    // Parse the response data
     const responseData = (await response.json()) as StandardApiResponse<T>;
+
+    // If the response follows StandardApiResponse structure, use its data
+    if (responseData && "data" in responseData) {
+      return {
+        success: true,
+        data: responseData.data,
+        status: responseData.status,
+        message: responseData.message,
+      };
+    }
+
+    // If the entire response is the data, return it directly
     return {
       success: true,
-      data: responseData.data,
-      status: responseData.status,
-      message: responseData.message,
+      data: responseData,
+      status: response.status,
+      message: "Success",
     };
   } catch (error: any) {
     // Handle network errors or unexpected issues

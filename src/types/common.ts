@@ -9,7 +9,7 @@ export type PaginatedData<T> = {
 
 export type ApiResponse<T> = {
   success: boolean;
-  data: T;
+  data: T | null;
   status: number;
   message: string;
 };
