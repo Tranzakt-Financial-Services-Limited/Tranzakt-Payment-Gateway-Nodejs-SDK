@@ -18,6 +18,21 @@ import { Tranzakt } from "tranzakt-node-sdk";
 const tranzakt = new Tranzakt("your-secret-key");
 ```
 
+## Response Structure
+
+All SDK methods return responses with a consistent structure:
+
+```typescript
+interface ApiResponse<T> {
+  success: boolean; // Indicates if the request was successful
+  data: T; // Contains the actual response data
+  status: number; // HTTP status code
+  message: string; // Human-readable message
+}
+```
+
+This consistent structure simplifies how you work with responses from the API.
+
 ## Core Features
 
 ### 1. Collection Management
@@ -28,47 +43,59 @@ Retrieves comprehensive information about a specific collection, including its c
 
 ```typescript
 // Fetch details for a specific collection
-const collection = await tranzakt.getCollection(
+const response = await tranzakt.getCollection(
   "37a71e2e-ed54-4e46-a3a9-47a211c352ea"
 );
+
+if (response.success) {
+  const collection = response.data;
+  console.log(`Collection name: ${collection.collectionName}`);
+}
 ```
 
-Response:
+Response example:
 
 ```typescript
-interface Collection {
-  id: string;
-  collectionName: string;
-  description: string;
-  invoiceExpirationPeriod: "OneHour" | "TwentyFourHours" | "FortyEightHours";
-  paymentChannels: ("Card" | "BankTransfer" | "USSD" | "BankBranch")[];
-  settlementFrequency: "Instant" | "Daily";
-  serviceFeeBilling: "Payer";
-  amount?: number;
-  dateCreated: string;
-  status: "Active" | "Pending" | "Disabled" | "Suspended" | "Blocked";
-  collectionCategory: {
-    id: string;
-    name: string;
-  };
-  collectionAccounts?: {
-    percentage: number;
-    linkedAccount: {
-      id: string;
-      accountName: string;
-      accountNumber: string;
-      bank: {
-        id: string;
-        name: string;
-        code: string;
-        logo: string;
-      };
-      merchant: {
-        merchantId: string;
-        businessName: string;
-      };
-    };
-  }[];
+{
+  success: true,
+  data: {
+    id: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
+    collectionName: "Product Sales",
+    description: "Collection for product sales",
+    invoiceExpirationPeriod: "TwentyFourHours",
+    paymentChannels: ["Card", "BankTransfer"],
+    settlementFrequency: "Instant",
+    serviceFeeBilling: "Payer",
+    amount: 5000,
+    dateCreated: "2024-01-01T00:00:00Z",
+    status: "Active",
+    collectionCategory: {
+      id: "cat-001",
+      name: "E-commerce"
+    },
+    collectionAccounts: [
+      {
+        percentage: 100,
+        linkedAccount: {
+          id: "acc-001",
+          accountName: "Business Account",
+          accountNumber: "1234567890",
+          bank: {
+            id: "bank-001",
+            name: "Example Bank",
+            code: "001",
+            logo: "https://example.com/logo.png"
+          },
+          merchant: {
+            merchantId: "merch-001",
+            businessName: "Example Business"
+          }
+        }
+      }
+    ]
+  },
+  status: 200,
+  message: "Success"
 }
 ```
 
@@ -78,7 +105,7 @@ Fetches a paginated list of invoices associated with a collection. Supports filt
 
 ```typescript
 // Get paginated list of invoices for a collection
-const invoices = await tranzakt.getCollectionInvoices(
+const response = await tranzakt.getCollectionInvoices(
   "37a71e2e-ed54-4e46-a3a9-47a211c352ea", // Collection ID (required)
   {
     // All parameters below are optional
@@ -93,6 +120,12 @@ const invoices = await tranzakt.getCollectionInvoices(
     pageSize: 20,
   }
 );
+
+if (response.success) {
+  // Access the paginated data
+  const { items, totalCount } = response.data;
+  console.log(`Found ${totalCount} invoices`);
+}
 ```
 
 Optional Parameters:
@@ -107,25 +140,33 @@ Optional Parameters:
 - `page`: Page number (default: 1)
 - `pageSize`: Records per page (default: 20)
 
-Response:
+Response example:
 
 ```typescript
-interface PaginatedInvoices {
-  items: {
-    id: string;
-    title: string;
-    amount: number;
-    status: string;
-    payerName: string;
-    payerEmail: string;
-    dateCreated: string;
-    datePaid?: string;
-  }[];
-  page: number;
-  pageSize: number;
-  totalCount: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
+{
+  success: true,
+  data: {
+    items: [
+      {
+        id: "inv-001",
+        title: "Monthly Subscription",
+        amount: 5000,
+        status: "Paid",
+        payerName: "John Doe",
+        payerEmail: "john@example.com",
+        dateCreated: "2024-01-15T10:30:00Z",
+        datePaid: "2024-01-15T10:35:00Z"
+      },
+      // More invoice items...
+    ],
+    page: 1,
+    pageSize: 20,
+    totalCount: 45,
+    hasNextPage: true,
+    hasPreviousPage: false
+  },
+  status: 200,
+  message: "Success"
 }
 ```
 
@@ -137,7 +178,7 @@ Creates a new payment invoice for a collection. Supports both fixed and variable
 
 ```typescript
 // Create a new invoice
-const invoice = await tranzakt.createInvoice({
+const response = await tranzakt.createInvoice({
   // Required parameters
   collectionId: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
   payerEmail: "john.doe@example.com",
@@ -159,44 +200,58 @@ const invoice = await tranzakt.createInvoice({
     "order-id": "12345",
   },
 });
+
+if (response.success) {
+  const invoice = response.data;
+  console.log(`Payment URL: ${invoice.paymentUrl}`);
+}
 ```
 
-Response:
+Response example:
 
 ```typescript
-interface Invoice {
-  id: string;
-  title: string;
-  collectionName: string;
-  payerName: string;
-  payerEmail: string;
-  payerPhoneNumber: string;
-  billerName: string;
-  billerAddress: string;
-  billerEmail: string;
-  amount: number;
-  serviceCharge?: number;
-  vat: number;
-  totalAmount: number;
-  invoiceStatus: "Unpaid" | "Paid" | "Invalidated";
-  serviceFeePayer: "Payer";
-  settlementFrequency: "Instant" | "Daily";
-  type: "Test" | "Live";
-  paymentUrl: string;
-  dateCreated: string;
-  dateModified: string;
-  paymentDate: string;
-  paymentMethod: "Card" | "BankTransfer" | "USSD";
-  invoiceBeneficiaries: Array<{
-    amount: string;
-    linkedAccountId: string;
-    accountName: string;
-    accountNumber: string;
-    bankName: string;
-    businessName: string;
-  }>;
-  billerMetaData?: Record<string, string>;
-  callBackUrl?: string;
+{
+  success: true,
+  data: {
+    id: "inv-001",
+    title: "Checkout Invoice",
+    collectionName: "Product Sales",
+    payerName: "John Doe",
+    payerEmail: "john.doe@example.com",
+    payerPhoneNumber: "07078955432",
+    billerName: "Example Business",
+    billerAddress: "123 Business St",
+    billerEmail: "sales@example.com",
+    amount: 40000,
+    serviceCharge: 400,
+    vat: 0,
+    totalAmount: 40400,
+    invoiceStatus: "Unpaid",
+    serviceFeePayer: "Payer",
+    settlementFrequency: "Instant",
+    type: "Live",
+    paymentUrl: "https://pay.tranzakt.app/inv-001",
+    dateCreated: "2024-03-24T12:00:00Z",
+    dateModified: "2024-03-24T12:00:00Z",
+    paymentDate: "",
+    paymentMethod: "Card",
+    invoiceBeneficiaries: [
+      {
+        amount: "20000",
+        linkedAccountId: "37a71e2e-ed54-4e46-a3a9-47a211c352ea",
+        accountName: "Business Account",
+        accountNumber: "1234567890",
+        bankName: "Example Bank",
+        businessName: "Example Business"
+      }
+    ],
+    billerMetaData: {
+      "order-id": "12345"
+    },
+    callBackUrl: "https://your-callback-url.com/webhook"
+  },
+  status: 201,
+  message: "Invoice created successfully"
 }
 ```
 
@@ -206,9 +261,14 @@ Retrieves detailed information about a specific invoice, including payment statu
 
 ```typescript
 // Fetch details for a specific invoice
-const invoice = await tranzakt.getInvoice(
+const response = await tranzakt.getInvoice(
   "22205053-02c7-4607-9cb5-5fa58cecae6d" // Invoice ID (required)
 );
+
+if (response.success) {
+  const invoice = response.data;
+  console.log(`Invoice status: ${invoice.invoiceStatus}`);
+}
 ```
 
 #### Invalidate Invoice
@@ -217,30 +277,80 @@ Cancels an unpaid invoice, preventing it from being paid. Useful for managing ex
 
 ```typescript
 // Invalidate an unpaid invoice
-await tranzakt.invalidateInvoice(
+const response = await tranzakt.invalidateInvoice(
   "22205053-02c7-4607-9cb5-5fa58cecae6d" // Invoice ID (required)
 );
+
+if (response.success) {
+  console.log("Invoice successfully invalidated");
+}
+```
+
+Response example:
+
+```typescript
+{
+  success: true,
+  data: null,
+  status: 200,
+  message: "Invoice invalidated successfully"
+}
 ```
 
 ## Error Handling
 
-The SDK provides detailed error information when something goes wrong:
+Since all responses follow the same structure, error handling is straightforward:
 
 ```typescript
-try {
-  const invoice = await tranzakt.createInvoice(/* ... */);
-} catch (error) {
-  console.error(`${error.status}: ${error.message}`);
-  console.error("Error type:", error.type);
-  console.error("Details:", error.errors);
+const response = await tranzakt.createInvoice({
+  /* invoice data */
+});
+
+if (!response.success) {
+  console.error(`Error (${response.status}): ${response.message}`);
 }
 ```
 
-Common Error Scenarios:
+You can handle specific error cases based on the status code:
+
+```typescript
+const response = await tranzakt.createInvoice({
+  /* invoice data */
+});
+
+if (!response.success) {
+  console.error(`Error (${response.status}): ${response.message}`);
+
+  // Handle specific error cases
+  if (response.status === 400) {
+    // Handle validation errors
+    console.log("Please check your input data");
+  } else if (response.status === 403) {
+    // Handle permission issues
+    console.log("You don't have permission to perform this action");
+  }
+}
+```
+
+Error response example:
+
+```typescript
+{
+  success: false,
+  data: null,
+  status: 400,
+  message: "Validation error: Missing required fields"
+}
+```
+
+Common Error Status Codes:
 
 - 400: Invalid request (missing required fields, incorrect amounts)
+- 401: Unauthorized (invalid API key)
 - 403: Permission denied (disabled collection, wrong API key type)
+- 404: Resource not found (invalid invoice or collection ID)
 - 412: Business validation failed (unverified beneficiary, missing collection owner)
+- 500: Server error (unexpected issues)
 
 ## Important Notes
 

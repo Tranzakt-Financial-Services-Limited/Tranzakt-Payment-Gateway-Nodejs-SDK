@@ -83,13 +83,20 @@ describe("InvoiceService", () => {
       global.fetch = jest.fn(() =>
         Promise.resolve({
           ok: true,
+          status: 200,
           json: () => Promise.resolve(mockInvoiceResponse),
         } as Response)
       ) as jest.Mock;
 
       const response = await tranzakt.getInvoice("inv-001");
 
-      expect(response).toEqual(mockInvoiceResponse);
+      expect(response).toEqual({
+        success: true,
+        data: mockInvoiceResponse,
+        status: 200,
+        message: "Success",
+      });
+
       expect(fetch).toHaveBeenCalledWith(
         `${BASE_URL}${INVOICE_URL}/inv-001`,
         expect.objectContaining({
@@ -119,9 +126,14 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.getInvoice("invalid-id")).rejects.toEqual(
-        mockError
-      );
+      const response = await tranzakt.getInvoice("invalid-id");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 404,
+        message: "Invoice not found",
+      });
     });
   });
 
@@ -130,13 +142,20 @@ describe("InvoiceService", () => {
       global.fetch = jest.fn(() =>
         Promise.resolve({
           ok: true,
+          status: 201,
           json: () => Promise.resolve(mockInvoiceResponse),
         } as Response)
       ) as jest.Mock;
 
       const response = await tranzakt.createInvoice(mockInvoiceData);
 
-      expect(response).toEqual(mockInvoiceResponse);
+      expect(response).toEqual({
+        success: true,
+        data: mockInvoiceResponse,
+        status: 201,
+        message: "Success",
+      });
+
       expect(fetch).toHaveBeenCalledWith(
         `${BASE_URL}${INVOICE_URL}`,
         expect.objectContaining({
@@ -178,15 +197,21 @@ describe("InvoiceService", () => {
         amount: 0,
       };
 
-      await expect(tranzakt.createInvoice(invalidData)).rejects.toEqual(
-        mockError
-      );
+      const response = await tranzakt.createInvoice(invalidData);
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 400,
+        message: "Validation failed",
+      });
     });
 
     it("should create an invoice without optional fields", async () => {
       global.fetch = jest.fn(() =>
         Promise.resolve({
           ok: true,
+          status: 201,
           json: () => Promise.resolve(mockInvoiceResponse),
         } as Response)
       ) as jest.Mock;
@@ -205,7 +230,14 @@ describe("InvoiceService", () => {
         ],
       };
 
-      await tranzakt.createInvoice(minimalInvoiceData);
+      const response = await tranzakt.createInvoice(minimalInvoiceData);
+
+      expect(response).toEqual({
+        success: true,
+        data: mockInvoiceResponse,
+        status: 201,
+        message: "Success",
+      });
 
       expect(fetch).toHaveBeenCalledWith(
         `${BASE_URL}${INVOICE_URL}`,
@@ -233,9 +265,14 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.invalidateInvoice("inv-001")).rejects.toEqual(
-        mockError
-      );
+      const response = await tranzakt.invalidateInvoice("inv-001");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 400,
+        message: "Invoice already invalidated",
+      });
     });
 
     it("should handle permission denied error", async () => {
@@ -254,9 +291,14 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.invalidateInvoice("inv-001")).rejects.toEqual(
-        mockError
-      );
+      const response = await tranzakt.invalidateInvoice("inv-001");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 403,
+        message: "Permission denied",
+      });
     });
 
     it("should handle invalidating a paid invoice", async () => {
@@ -275,9 +317,14 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.invalidateInvoice("inv-001")).rejects.toEqual(
-        mockError
-      );
+      const response = await tranzakt.invalidateInvoice("inv-001");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 400,
+        message: "Cannot invalidate a paid invoice",
+      });
     });
 
     it("should handle non-existent invoice invalidation attempt", async () => {
@@ -296,37 +343,37 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(
-        tranzakt.invalidateInvoice("non-existent-id")
-      ).rejects.toEqual(mockError);
+      const response = await tranzakt.invalidateInvoice("non-existent-id");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 404,
+        message: "Invoice not found",
+      });
     });
   });
 
   describe("error handling across all methods", () => {
     it("should handle network errors", async () => {
       const errorMessage = "Failed to fetch";
-      const mockError: ApiError = {
-        status: 500,
-        message: errorMessage, // Changed to match the actual error message
-        type: "NetworkError",
-        errors: [errorMessage],
-      };
 
       global.fetch = jest.fn(() =>
         Promise.reject(new Error(errorMessage))
       ) as jest.Mock;
 
-      await expect(tranzakt.getInvoice("inv-001")).rejects.toEqual(mockError);
+      const response = await tranzakt.getInvoice("inv-001");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 500,
+        message: errorMessage,
+      });
     });
 
     it("should handle malformed JSON responses", async () => {
       const errorMessage = "Invalid JSON";
-      const mockError: ApiError = {
-        status: 500,
-        message: errorMessage, // Changed to match the actual error message
-        type: "NetworkError",
-        errors: [errorMessage],
-      };
 
       global.fetch = jest.fn(() =>
         Promise.resolve({
@@ -335,7 +382,14 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.getInvoice("inv-001")).rejects.toEqual(mockError);
+      const response = await tranzakt.getInvoice("inv-001");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 500,
+        message: errorMessage,
+      });
     });
 
     it("should handle server errors", async () => {
@@ -354,7 +408,14 @@ describe("InvoiceService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.getInvoice("inv-001")).rejects.toEqual(mockError);
+      const response = await tranzakt.getInvoice("inv-001");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 500,
+        message: "Internal Server Error",
+      });
     });
   });
 });

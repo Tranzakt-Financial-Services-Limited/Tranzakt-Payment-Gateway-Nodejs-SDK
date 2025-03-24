@@ -3,7 +3,6 @@ import {
   ClientRequestStatus,
   Collection,
   CollectionStatus,
-  GetCollectionInvoicesResponse,
   InvoiceExpirationPeriod,
   InvoiceStatus,
   InvoiceType,
@@ -60,30 +59,6 @@ describe("CollectionService", () => {
     },
   };
 
-  const mockCollectionInvoicesResponse: GetCollectionInvoicesResponse = {
-    data: {
-      items: [
-        {
-          id: "inv-001",
-          title: "Test Invoice",
-          amount: 1000,
-          status: InvoiceStatus.Unpaid,
-          payerName: "John Doe",
-          payerEmail: "john@example.com",
-          dateCreated: "2024-01-01T00:00:00Z",
-          datePaid: undefined,
-        },
-      ],
-      page: 1,
-      pageSize: 10,
-      totalCount: 1,
-      hasNextPage: false,
-      hasPreviousPage: false,
-    },
-    status: 200,
-    message: "Fetched invoice successfully",
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -93,13 +68,20 @@ describe("CollectionService", () => {
       global.fetch = jest.fn(() =>
         Promise.resolve({
           ok: true,
+          status: 200,
           json: () => Promise.resolve(mockCollectionResponse),
         } as Response)
       ) as jest.Mock;
 
       const response = await tranzakt.getCollection("col-001");
 
-      expect(response).toEqual(mockCollectionResponse);
+      expect(response).toEqual({
+        success: true,
+        data: mockCollectionResponse,
+        status: 200,
+        message: "Success",
+      });
+
       expect(fetch).toHaveBeenCalledWith(
         `${BASE_URL}${COLLECTION_URL}/col-001`,
         expect.objectContaining({
@@ -129,9 +111,14 @@ describe("CollectionService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.getCollection("invalid-id")).rejects.toEqual(
-        mockError
-      );
+      const response = await tranzakt.getCollection("invalid-id");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 404,
+        message: "Collection not found",
+      });
     });
   });
 
@@ -140,13 +127,57 @@ describe("CollectionService", () => {
       global.fetch = jest.fn(() =>
         Promise.resolve({
           ok: true,
-          json: () => Promise.resolve(mockCollectionInvoicesResponse),
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              items: [
+                {
+                  id: "inv-001",
+                  title: "Test Invoice",
+                  amount: 1000,
+                  status: InvoiceStatus.Unpaid,
+                  payerName: "John Doe",
+                  payerEmail: "john@example.com",
+                  dateCreated: "2024-01-01T00:00:00Z",
+                  datePaid: undefined,
+                },
+              ],
+              page: 1,
+              pageSize: 10,
+              totalCount: 1,
+              hasNextPage: false,
+              hasPreviousPage: false,
+            }),
         } as Response)
       ) as jest.Mock;
 
       const response = await tranzakt.getCollectionInvoices("col-001");
 
-      expect(response).toEqual(mockCollectionInvoicesResponse);
+      expect(response).toEqual({
+        success: true,
+        data: {
+          items: [
+            {
+              id: "inv-001",
+              title: "Test Invoice",
+              amount: 1000,
+              status: InvoiceStatus.Unpaid,
+              payerName: "John Doe",
+              payerEmail: "john@example.com",
+              dateCreated: "2024-01-01T00:00:00Z",
+              datePaid: undefined,
+            },
+          ],
+          page: 1,
+          pageSize: 10,
+          totalCount: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+        status: 200,
+        message: "Success",
+      });
+
       expect(fetch).toHaveBeenCalledWith(
         `${BASE_URL}${COLLECTION_URL}/col-001/Invoices`,
         expect.objectContaining({
@@ -164,7 +195,27 @@ describe("CollectionService", () => {
       global.fetch = jest.fn(() =>
         Promise.resolve({
           ok: true,
-          json: () => Promise.resolve(mockCollectionInvoicesResponse),
+          status: 200,
+          json: () =>
+            Promise.resolve({
+              items: [
+                {
+                  id: "inv-001",
+                  title: "Test Invoice",
+                  amount: 1000,
+                  status: InvoiceStatus.Unpaid,
+                  payerName: "John Doe",
+                  payerEmail: "john@example.com",
+                  dateCreated: "2024-01-01T00:00:00Z",
+                  datePaid: undefined,
+                },
+              ],
+              page: 2,
+              pageSize: 20,
+              totalCount: 1,
+              hasNextPage: false,
+              hasPreviousPage: true,
+            }),
         } as Response)
       ) as jest.Mock;
 
@@ -180,7 +231,32 @@ describe("CollectionService", () => {
         pageSize: 20,
       };
 
-      await tranzakt.getCollectionInvoices("col-001", params);
+      const response = await tranzakt.getCollectionInvoices("col-001", params);
+
+      expect(response).toEqual({
+        success: true,
+        data: {
+          items: [
+            {
+              id: "inv-001",
+              title: "Test Invoice",
+              amount: 1000,
+              status: InvoiceStatus.Unpaid,
+              payerName: "John Doe",
+              payerEmail: "john@example.com",
+              dateCreated: "2024-01-01T00:00:00Z",
+              datePaid: undefined,
+            },
+          ],
+          page: 2,
+          pageSize: 20,
+          totalCount: 1,
+          hasNextPage: false,
+          hasPreviousPage: true,
+        },
+        status: 200,
+        message: "Success",
+      });
 
       const expectedUrl = `${BASE_URL}${COLLECTION_URL}/col-001/Invoices?invoiceStatus=Unpaid&search=test&startDate=2024-01-01&endDate=2024-01-31&InvoiceType=Live&linkedAccountId=acc-001&IsDownloading=true&page=2&pageSize=20`;
 
@@ -203,9 +279,14 @@ describe("CollectionService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(tranzakt.getCollectionInvoices("col-001")).rejects.toEqual(
-        mockError
-      );
+      const response = await tranzakt.getCollectionInvoices("col-001");
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 401,
+        message: "Unauthorized access",
+      });
     });
 
     it("should handle malformed date parameters", async () => {
@@ -224,11 +305,16 @@ describe("CollectionService", () => {
         } as Response)
       ) as jest.Mock;
 
-      await expect(
-        tranzakt.getCollectionInvoices("col-001", {
-          startDate: "invalid-date",
-        })
-      ).rejects.toEqual(mockError);
+      const response = await tranzakt.getCollectionInvoices("col-001", {
+        startDate: "invalid-date",
+      });
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 400,
+        message: "Invalid date format",
+      });
     });
   });
 });
