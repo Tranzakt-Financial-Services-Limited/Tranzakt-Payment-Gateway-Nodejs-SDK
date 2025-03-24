@@ -1,5 +1,5 @@
 import { BASE_URL } from "../config";
-import { ApiError, ApiResponse } from "../types";
+import { ApiError, ApiResponse, StandardApiResponse } from "../types";
 
 type IRequestParam<T = any> = {
   url: string;
@@ -42,12 +42,12 @@ export async function requestProcessor<T>({
       };
     }
 
-    const responseData = (await response.json()) as T;
+    const responseData = (await response.json()) as StandardApiResponse<T>;
     return {
       success: true,
-      data: responseData,
-      status: response.status,
-      message: "Success",
+      data: responseData.data,
+      status: responseData.status,
+      message: responseData.message,
     };
   } catch (error: any) {
     // Handle network errors or unexpected issues

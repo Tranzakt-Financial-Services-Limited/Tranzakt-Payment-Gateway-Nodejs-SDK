@@ -13,6 +13,11 @@ export type ApiResponse<T> = {
   status: number;
   message: string;
 };
+export type StandardApiResponse<T> = {
+  data: T;
+  status: number;
+  message: string;
+};
 
 export type ApiError = {
   status: number;
