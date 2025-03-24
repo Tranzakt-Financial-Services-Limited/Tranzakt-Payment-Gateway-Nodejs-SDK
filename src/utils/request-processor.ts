@@ -1,5 +1,5 @@
 import { BASE_URL } from "../config";
-import { ApiError } from "../types";
+import { ApiError, ApiResponse } from "../types";
 
 type IRequestParam<T = any> = {
   url: string;
@@ -13,7 +13,7 @@ export async function requestProcessor<T>({
   method,
   data,
   headers,
-}: IRequestParam): Promise<T> {
+}: IRequestParam): Promise<ApiResponse<T>> {
   const config: RequestInit = {
     method,
     headers: {
@@ -34,18 +34,28 @@ export async function requestProcessor<T>({
         errors: [response.statusText],
       }))) as ApiError;
 
-      return Promise.reject(errorResponse);
+      return {
+        success: false,
+        data: null as unknown as T,
+        status: errorResponse.status,
+        message: errorResponse.message || "An error occurred",
+      };
     }
 
     const responseData = (await response.json()) as T;
-    return responseData;
+    return {
+      success: true,
+      data: responseData,
+      status: response.status,
+      message: "Success",
+    };
   } catch (error: any) {
     // Handle network errors or unexpected issues
-    return Promise.reject({
+    return {
+      success: false,
+      data: null as unknown as T,
       status: 500,
       message: error?.message ?? "NetworkError",
-      type: "NetworkError",
-      errors: [error instanceof Error ? error.message : "Unknown error"],
-    } as ApiError);
+    };
   }
 }

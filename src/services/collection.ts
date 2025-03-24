@@ -1,8 +1,11 @@
 import { COLLECTION_URL } from "../config";
 import {
+  Collection,
+  CollectionInvoiceItem,
   GetCollectionInvoicesParams,
   GetCollectionInvoicesResponse,
   GetCollectionResponse,
+  PaginatedData,
 } from "../types";
 import { requestProcessor } from "../utils/request-processor";
 
@@ -12,11 +15,11 @@ export class CollectionService {
   async getCollectionDetails(
     collectionId: string
   ): Promise<GetCollectionResponse> {
-    return await requestProcessor<GetCollectionResponse>({
+    return (await requestProcessor<Collection>({
       url: `${COLLECTION_URL}/${collectionId}`,
       method: "GET",
       headers: { "x-api-key": this.secretKey },
-    });
+    })) as unknown as GetCollectionResponse;
   }
 
   async getCollectionInvoices(
@@ -37,10 +40,10 @@ export class CollectionService {
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
 
-    return await requestProcessor<GetCollectionInvoicesResponse>({
+    return (await requestProcessor<PaginatedData<CollectionInvoiceItem>>({
       url,
       method: "GET",
       headers: { "x-api-key": this.secretKey },
-    });
+    })) as unknown as GetCollectionInvoicesResponse;
   }
 }
