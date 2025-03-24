@@ -1,6 +1,6 @@
 {
   "name": "tranzakt-node-sdk",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "Tranzakt Payment Gateway Nodejs SDK.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
