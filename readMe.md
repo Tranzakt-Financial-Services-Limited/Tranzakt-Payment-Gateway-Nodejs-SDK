@@ -230,7 +230,7 @@ Response example:
     serviceFeePayer: "Payer",
     settlementFrequency: "Instant",
     type: "Live",
-    paymentUrl: "https://pay.tranzakt.app/inv-001",
+    paymentUrl: "https://pay.tranzakt.finance/inv-001",
     dateCreated: "2024-03-24T12:00:00Z",
     dateModified: "2024-03-24T12:00:00Z",
     paymentDate: "",
