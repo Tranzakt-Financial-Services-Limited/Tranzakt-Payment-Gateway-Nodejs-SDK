@@ -45,7 +45,7 @@ export interface Invoice {
   serviceCharge?: number;
   vat: number;
   totalAmount: number;
-  invoiceStatus: InvoiceStatus;
+  status: InvoiceStatus;
   serviceFeePayer: ServiceFeeBilling;
   settlementFrequency: SettlementFrequency;
   type: InvoiceType;
