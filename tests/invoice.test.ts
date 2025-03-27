@@ -30,7 +30,7 @@ describe("InvoiceService", () => {
     serviceCharge: 50,
     vat: 50,
     totalAmount: 1100,
-    invoiceStatus: InvoiceStatus.Unpaid,
+    status: InvoiceStatus.Unpaid,
     serviceFeePayer: ServiceFeeBilling.Payer,
     settlementFrequency: SettlementFrequency.Instant,
     type: InvoiceType.Test,
