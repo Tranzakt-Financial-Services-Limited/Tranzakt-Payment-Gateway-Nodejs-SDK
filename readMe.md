@@ -365,7 +365,7 @@ When creating invoices:
 
 ## Support
 
-- Email: hi@tranzakt.app
+- Email: support@tranzakt.finance
 - Docs: https://docs.tranzakt.com
 
 ## License
