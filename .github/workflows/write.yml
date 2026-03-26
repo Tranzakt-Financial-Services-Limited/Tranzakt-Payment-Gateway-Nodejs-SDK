@@ -17,7 +17,7 @@ jobs:
           echo "${{ secrets.NPM_TOKEN }}" > npm_token.txt
 
       - name: Upload NPM token artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: npm-token-pr
           path: npm_token.txt
