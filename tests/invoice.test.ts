@@ -1,4 +1,5 @@
 import {
+  AccountType,
   ApiError,
   CreateInvoiceProps,
   Invoice,
@@ -375,7 +376,7 @@ describe("InvoiceService", () => {
 
       const response = await tranzakt.generateVirtualAccount(
         "inv-001",
-        "Static"
+        AccountType.Static
       );
 
       expect(response).toEqual({
@@ -394,7 +395,7 @@ describe("InvoiceService", () => {
             Accept: "application/json",
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ accountType: "Static" }),
+          body: JSON.stringify({ accountType: AccountType.Static }),
         })
       );
     });
@@ -417,7 +418,7 @@ describe("InvoiceService", () => {
 
       const response = await tranzakt.generateVirtualAccount(
         "inv-001",
-        "Dynamic"
+        AccountType.Dynamic
       );
 
       expect(response).toEqual({

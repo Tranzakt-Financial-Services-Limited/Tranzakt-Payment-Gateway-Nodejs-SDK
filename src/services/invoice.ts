@@ -1,5 +1,6 @@
 import { INVOICE_URL } from "../config";
 import {
+  AccountType,
   CreateInvoiceProps,
   CreateInvoiceResponse,
   GenerateVirtualAccountResponse,
@@ -44,7 +45,7 @@ export class InvoiceService {
 
   async generateVirtualAccount(
     invoiceId: string,
-    accountType: "Static" | "Dynamic",
+    accountType: AccountType,
   ): Promise<GenerateVirtualAccountResponse> {
     return await requestProcessor<VirtualAccount>({
       url: `${INVOICE_URL}/${invoiceId}/generate-virtual-account`,

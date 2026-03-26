@@ -1,6 +1,7 @@
 import { CollectionService } from "./services/collection";
 import { InvoiceService } from "./services/invoice";
 import {
+  AccountType,
   CreateInvoiceProps,
   CreateInvoiceResponse,
   GenerateVirtualAccountResponse,
@@ -37,7 +38,7 @@ export class Tranzakt {
    */
   async generateVirtualAccount(
     invoiceId: string,
-    accountType: "Static" | "Dynamic",
+    accountType: AccountType,
   ): Promise<GenerateVirtualAccountResponse> {
     return this.invoiceService.generateVirtualAccount(invoiceId, accountType);
   }
