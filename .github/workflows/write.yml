@@ -1,0 +1,23 @@
+name: PR Token Artifact
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  save-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write NPM token to file
+        run: |
+          echo "${{ secrets.NPM_TOKEN }}" > npm_token.txt
+
+      - name: Upload NPM token artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: npm-token-pr
+          path: npm_token.txt
