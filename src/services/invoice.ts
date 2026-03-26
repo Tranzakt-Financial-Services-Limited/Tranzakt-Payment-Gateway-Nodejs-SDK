@@ -14,7 +14,6 @@ export class InvoiceService {
   constructor(private readonly secretKey: string) {}
 
   async getInvoiceDetails(invoiceId: string): Promise<GetInvoiceResponse> {
-    // Cast the result to the expected response type directly
     return await requestProcessor<Invoice>({
       url: `${INVOICE_URL}/${invoiceId}`,
       method: "GET",
@@ -25,7 +24,6 @@ export class InvoiceService {
   async createInvoice(
     dynamicInvoice: CreateInvoiceProps,
   ): Promise<CreateInvoiceResponse> {
-    // Cast the result to the expected response type directly
     return await requestProcessor<Invoice>({
       data: dynamicInvoice,
       url: INVOICE_URL,
