@@ -82,10 +82,18 @@ export interface GetCollectionInvoicesParams {
   pageSize?: number;
 }
 
+export interface VirtualAccount {
+  invoiceId: string;
+  accountNumber: string;
+  bankName: string;
+  accountName: string;
+  expiryDate: string | null;
+}
 // API Response Types
 export type CreateInvoiceResponse = ApiResponse<Invoice>;
 export type GetInvoiceResponse = ApiResponse<Invoice>;
 export type GetCollectionInvoicesResponse = ApiResponse<
   PaginatedData<CollectionInvoiceItem>
 >;
-export type InvalidateInvoiceResponse = ApiResponse<null>;
+export type InvalidateInvoiceResponse = ApiResponse<void>;
+export type GenerateVirtualAccountResponse = ApiResponse<VirtualAccount>;

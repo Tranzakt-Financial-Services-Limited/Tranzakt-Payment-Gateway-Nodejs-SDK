@@ -11,5 +11,6 @@
   "javascript.validate.enable": true,
   "workbench.colorCustomizations": {
     "editorUnnecessaryCode.border": "#ff0000"
-  }
+  },
+  "cSpell.words": ["Tranzakt"]
 }

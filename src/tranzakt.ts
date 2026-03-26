@@ -3,6 +3,7 @@ import { InvoiceService } from "./services/invoice";
 import {
   CreateInvoiceProps,
   CreateInvoiceResponse,
+  GenerateVirtualAccountResponse,
   GetCollectionInvoicesParams,
   GetCollectionInvoicesResponse,
   GetCollectionResponse,
@@ -24,13 +25,25 @@ export class Tranzakt {
   }
 
   async createInvoice(
-    dynamicInvoice: CreateInvoiceProps
+    dynamicInvoice: CreateInvoiceProps,
   ): Promise<CreateInvoiceResponse> {
     return this.invoiceService.createInvoice(dynamicInvoice);
   }
+  /**
+   *
+   * @param invoiceId Invoice ID for which the virtual account is to be generated
+   * @param accountType Dynamic account type expires in 1 hour, Static account type expires in 3 days
+   * @returns
+   */
+  async generateVirtualAccount(
+    invoiceId: string,
+    accountType: "Static" | "Dynamic",
+  ): Promise<GenerateVirtualAccountResponse> {
+    return this.invoiceService.generateVirtualAccount(invoiceId, accountType);
+  }
 
   async invalidateInvoice(
-    invoiceId: string
+    invoiceId: string,
   ): Promise<InvalidateInvoiceResponse> {
     return this.invoiceService.invalidateAnInvoice(invoiceId);
   }
@@ -41,7 +54,7 @@ export class Tranzakt {
 
   async getCollectionInvoices(
     collectionId: string,
-    params?: GetCollectionInvoicesParams
+    params?: GetCollectionInvoicesParams,
   ): Promise<GetCollectionInvoicesResponse> {
     return this.collectionService.getCollectionInvoices(collectionId, params);
   }

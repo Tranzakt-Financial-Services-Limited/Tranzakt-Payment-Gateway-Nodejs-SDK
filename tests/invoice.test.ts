@@ -8,6 +8,7 @@ import {
   ServiceFeeBilling,
   SettlementFrequency,
   Tranzakt,
+  VirtualAccount,
 } from "../src";
 import { BASE_URL, INVOICE_URL } from "../src/config";
 
@@ -72,6 +73,14 @@ describe("InvoiceService", () => {
         amount: 1000,
       },
     ],
+  };
+
+  const mockVirtualAccountResponse: VirtualAccount = {
+    invoiceId: "inv-001",
+    accountNumber: "1234567890",
+    bankName: "Test Bank",
+    accountName: "John Doe",
+    expiryDate: "2024-12-31T23:59:59Z",
   };
 
   beforeEach(() => {
@@ -350,6 +359,72 @@ describe("InvoiceService", () => {
         data: null,
         status: 404,
         message: "Invoice not found",
+      });
+    });
+  });
+
+  describe("generateVirtualAccount", () => {
+    it("should generate a virtual account successfully", async () => {
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(mockVirtualAccountResponse),
+        } as Response)
+      ) as jest.Mock;
+
+      const response = await tranzakt.generateVirtualAccount(
+        "inv-001",
+        "Static"
+      );
+
+      expect(response).toEqual({
+        success: true,
+        data: mockVirtualAccountResponse,
+        status: 200,
+        message: "Success",
+      });
+
+      expect(fetch).toHaveBeenCalledWith(
+        `${BASE_URL}${INVOICE_URL}/inv-001/generate-virtual-account`,
+        expect.objectContaining({
+          method: "POST",
+          headers: {
+            "x-api-key": mockSecretKey,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ accountType: "Static" }),
+        })
+      );
+    });
+
+    it("should handle virtual account generation errors", async () => {
+      const mockError: ApiError = {
+        status: 400,
+        message: "Invalid account type",
+        type: "BadRequest",
+        errors: ["Account type must be Static or Dynamic"],
+      };
+
+      global.fetch = jest.fn(() =>
+        Promise.resolve({
+          ok: false,
+          status: 400,
+          json: () => Promise.resolve(mockError),
+        } as Response)
+      ) as jest.Mock;
+
+      const response = await tranzakt.generateVirtualAccount(
+        "inv-001",
+        "Dynamic"
+      );
+
+      expect(response).toEqual({
+        success: false,
+        data: null,
+        status: 400,
+        message: "Invalid account type",
       });
     });
   });
