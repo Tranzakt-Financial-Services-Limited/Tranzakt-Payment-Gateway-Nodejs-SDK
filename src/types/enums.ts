@@ -56,3 +56,8 @@ export enum InvoiceExpirationPeriod {
   TwentyFour_Hours = 24,
   FortyEight_Hours = 48,
 }
+
+export enum AccountType {
+  Static = "Static",
+  Dynamic = "Dynamic",
+}

@@ -13,18 +13,18 @@ export class CollectionService {
   constructor(private readonly secretKey: string) {}
 
   async getCollectionDetails(
-    collectionId: string
+    collectionId: string,
   ): Promise<GetCollectionResponse> {
-    return (await requestProcessor<Collection>({
+    return await requestProcessor<Collection>({
       url: `${COLLECTION_URL}/${collectionId}`,
       method: "GET",
       headers: { "x-api-key": this.secretKey },
-    })) as unknown as GetCollectionResponse;
+    });
   }
 
   async getCollectionInvoices(
     collectionId: string,
-    params?: GetCollectionInvoicesParams
+    params?: GetCollectionInvoicesParams,
   ): Promise<GetCollectionInvoicesResponse> {
     const queryParams = new URLSearchParams();
 
@@ -40,10 +40,10 @@ export class CollectionService {
       queryParams.toString() ? `?${queryParams.toString()}` : ""
     }`;
 
-    return (await requestProcessor<PaginatedData<CollectionInvoiceItem>>({
+    return await requestProcessor<PaginatedData<CollectionInvoiceItem>>({
       url,
       method: "GET",
       headers: { "x-api-key": this.secretKey },
-    })) as unknown as GetCollectionInvoicesResponse;
+    });
   }
 }
