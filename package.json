@@ -1,6 +1,6 @@
 {
   "name": "tranzakt-node-sdk",
-  "version": "0.0.36",
+  "version": "0.0.35",
   "description": "Tranzakt Payment Gateway Nodejs SDK.",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -35,9 +35,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Scuudu-Labs/Tranzakt-Payment-Gateway-Nodejs-SDK.git"
+    "url": "git+https://github.com/Tranzakt-Financial-Services-Limited/Tranzakt-Payment-Gateway-Nodejs-SDK.git"
   },
-  "homepage": "https://github.com/Scuudu-Labs/Tranzakt-Payment-Gateway-Nodejs-SDK#readme",
+  "homepage": "https://github.com/Tranzakt-Financial-Services-Limited/Tranzakt-Payment-Gateway-Nodejs-SDK#readme",
   "files": [
     "dist/"
   ],
